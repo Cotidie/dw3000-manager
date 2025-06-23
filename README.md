@@ -34,6 +34,7 @@ DW3000 Manager is a Arduino library that wraps and simplifies the use of Qorvo's
 DW3000 uwb;
 
 void setup() {
+    // Step 1. Boot up DW3000 and Arduino prepherals
     Serial.begin(31250); // whatever baud rate you want.
 
     if (uwb.begin() != DWStatus::OK) {
@@ -41,12 +42,14 @@ void setup() {
         while (1);
     }
 
+    // Step 2. Basic configuration
     dwt_config_t config = {/* your configuration */};
     if (dwt.configure(&config) != DWStatus::OK) {
         Serial.print("Configuration failed.");
         while (1);
     }
 
+    // Step 3. Optional configurations
     uwb.enableLED();
     dwt.setAntennaDelay(RX_ANT_DLY, TX_ANT_DLY);
     dwt.setLNAPAMode(true, true); // Amplifying transmitted/received signals
@@ -55,7 +58,8 @@ void setup() {
 
 ### Simple Transmission
 ```cpp
-FrameBuilder builder;
+// Build a Custom frame
+FrameBuilder builder(FrameType::Custom);
 auto txFrame = builder
     .setSequenceNumber(1)
     .setSrcAddress(0xABCDEF01)
