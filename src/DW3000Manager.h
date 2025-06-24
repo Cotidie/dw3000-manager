@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <memory>
+#include "stdint.h"
 #include "dw3000.h"
 #include "frame/Frame.h"
 #include "frame/FrameParser.h"
@@ -107,7 +108,6 @@ public:
      * @return CIRFrame containing a pointer to CIR data and the number of samples.
     */
     CIRFrame extractCIR();
-
 private:
     DWStatus status = DWStatus::OK;
 
