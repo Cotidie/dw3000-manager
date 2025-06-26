@@ -1,10 +1,38 @@
 #pragma once
 
 #include <Arduino.h>
-#include <ArduinoJson>
+#include <ArduinoJson.h>
 #include "stdint.h"
+#include "interface/Serializable.h"
 
-class CIRs {
+/**
+ * @brief Represents a single Channel Impulse Response (CIR) sample.
+ * 
+ * Each sample contains a real and imaginary component, derived from
+ * 24-bit signed values extracted from the DW3000 accumulator.
+ */
+class CIR {
+public:
+    CIR() {} ;
+    CIR(int32_t real, int32_t imaginary) {
+        this->real = real;
+        this->imaginary = imaginary;
+    }
+
+    // Conver to Json array [real, imaginary]
+    JsonDocument toJson() {
+        JsonDocument arr;
+        arr.add(real);
+        arr.add(imaginary);
+
+        return arr;
+    }
+
+    int32_t real = 0;
+    int32_t imaginary = 0;
+};
+
+class CIRs : public Serializable {
 public:
     CIRs(uint16_t len) {
         this->cirs = new CIR[len];
@@ -15,11 +43,18 @@ public:
 
     CIR& operator[](int idx) { return cirs[idx]; }
 
-    void toJson(JsonArray cirsJson) {
+    uint16_t getLength() { return this->len; }
+
+    // JSON Foramt: [ [re, img], [re, img], ... ]
+    JsonDocument toJson() {
+        JsonDocument arrCIRs;
         for (int i=0; i<len; i++) {
-            JsonArray cirJson = cirsJson.add<JsonArray>();
-            this->cirs[i].toJson(cirJson);
+            JsonDocument arrCIR = cirs[i].toJson();
+            arrCIRs.add(arrCIR);
+            arrCIR.clear();
         }
+
+        return arrCIRs;
     }
 
 private:
@@ -27,24 +62,3 @@ private:
     uint16_t len;
 };
 
-/**
- * @brief Represents a single Channel Impulse Response (CIR) sample.
- * 
- * Each sample contains a real and imaginary component, derived from
- * 24-bit signed values extracted from the DW3000 accumulator.
- */
-class CIR {
-public:
-    CIR(int32_t real, int32_t imaginary) {
-        this->real = real;
-        this->imaginary = imaginary;
-    }
-
-    void toJson(JsonArray json) {
-        json.add(real);
-        json.add(imaginary);
-    }
-
-    int32_t real;
-    int32_t imaginary;
-};

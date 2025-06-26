@@ -4,33 +4,13 @@
 #include <memory>
 #include "stdint.h"
 #include "dw3000.h"
+#include "entity/CIR.h"
 #include "frame/Frame.h"
 #include "frame/FrameParser.h"
 #include "frame/FrameBuilder.h"
 
 using namespace std;
 
-/**
- * @brief Represents a single Channel Impulse Response (CIR) sample.
- * 
- * Each sample contains a real and imaginary component, derived from
- * 24-bit signed values extracted from the DW3000 accumulator.
- */
-typedef struct {
-    int32_t real = 0;
-    int32_t imaginary = 0;
-} CIR;
-
-
-/**
- * @brief Represents a full CIR frame containing multiple CIR samples.
- * 
- * Contains a pointer to the internal CIR buffer and the number of samples.
- */
-typedef struct {
-    const CIR *buffer;
-    uint16_t len;
-} CIRFrame;
 
 /**
  * @brief Status codes for DW3000 operation. 
@@ -107,7 +87,7 @@ public:
      * 
      * @return CIRFrame containing a pointer to CIR data and the number of samples.
     */
-    CIRFrame extractCIR();
+    CIRs& extractCIR();
 private:
     DWStatus status = DWStatus::OK;
 
@@ -115,5 +95,5 @@ private:
     // to avoid overflow on Arduino boards like ESP32.
     // Note that ESP32 only allocates 8KB to stack memory, while ~180KB to static, heap area.
     uint8_t *cirBuffer;
-    CIR *cirs;
+    CIRs* cirs;
 };

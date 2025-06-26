@@ -17,9 +17,16 @@ using namespace std;
 extern SPISettings _fastSPI;
 extern dwt_txconfig_t txconfig_options;
 
-DW3000::DW3000() {
+DW3000::DW3000() {}
+
+DW3000::~DW3000() {
+    delete[] this->cirBuffer;
+    delete[] this->cirs;
+}
+
+DWStatus DW3000::begin() {
     this->cirBuffer = new uint8_t[CIR_BUFFER_SIZE];
-    this->cirs = new CIR[CIR_SAMPLES];
+    this->cirs = new CIRs(CIR_SAMPLES);
 
     // SPI Configuration -> $2.3.1.1 SPI Operating Modes
     // onyl clock speed is configurable, others are mandatory by manual
@@ -29,14 +36,7 @@ DW3000::DW3000() {
     _fastSPI = SPISettings(16000000L, MSBFIRST, SPI_MODE0);
     spiBegin(PIN_IRQ, PIN_RST);
     spiSelect(PIN_SS);
-}
 
-DW3000::~DW3000() {
-    delete[] this->cirBuffer;
-    delete[] this->cirs;
-}
-
-DWStatus DW3000::begin() {
     // Time needed for DW3000 to start up (transition from INIT_RC to IDLE_RC, or could wait for SPIRDY event)
     // ref. 5.1.15 dwt_checkidlerc()
     delay(2); 
@@ -99,21 +99,21 @@ void DW3000::transmitFrame(shared_ptr<Frame> frame) {
     dwt_starttx(DWT_START_TX_IMMEDIATE);
 }
 
-CIRFrame DW3000::extractCIR() {
+CIRs& DW3000::extractCIR() {
     dwt_readaccdata(this->cirBuffer, CIR_BUFFER_SIZE, 0);
     for (int idx = 0; idx < CIR_SAMPLES; idx++) {
         int i = 1 + idx*CIR_BYTES_PER_SAMPLE;
 
         // Extract real part (24-bit signed)
-        this->cirs[idx].real = ((int32_t)(int8_t) this->cirBuffer[i + 2] << 16) +
+        (*cirs)[idx].real = ((int32_t)(int8_t) this->cirBuffer[i + 2] << 16) +
                 ((int32_t) this->cirBuffer[i + 1] << 8) +
                 (int32_t) this->cirBuffer[i];
 
         // Extract imag part (24-bit signed)
-        this->cirs[idx].imaginary = ((int32_t)(int8_t) this->cirBuffer[i + 5] << 16) +
+        (*cirs)[idx].imaginary = ((int32_t)(int8_t) this->cirBuffer[i + 5] << 16) +
                 ((int32_t) this->cirBuffer[i + 4] << 8) +
                 (int32_t) this->cirBuffer[i + 3];
     }
 
-    return CIRFrame{this->cirs, CIR_SAMPLES};
+    return *cirs;
 }
