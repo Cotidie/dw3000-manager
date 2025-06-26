@@ -87,7 +87,7 @@ public:
      * 
      * @return CIRFrame containing a pointer to CIR data and the number of samples.
     */
-    CIRs& extractCIR();
+    CIRs& extractCIRs();
 private:
     DWStatus status = DWStatus::OK;
 

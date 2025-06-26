@@ -17,7 +17,10 @@ using namespace std;
 extern SPISettings _fastSPI;
 extern dwt_txconfig_t txconfig_options;
 
-DW3000::DW3000() {}
+DW3000::DW3000() {
+    this->cirBuffer = new uint8_t[CIR_BUFFER_SIZE];
+    this->cirs = new CIRs(CIR_SAMPLES);
+}
 
 DW3000::~DW3000() {
     delete[] this->cirBuffer;
@@ -25,9 +28,6 @@ DW3000::~DW3000() {
 }
 
 DWStatus DW3000::begin() {
-    this->cirBuffer = new uint8_t[CIR_BUFFER_SIZE];
-    this->cirs = new CIRs(CIR_SAMPLES);
-
     // SPI Configuration -> $2.3.1.1 SPI Operating Modes
     // onyl clock speed is configurable, others are mandatory by manual
     // - clock speed: 16 MHz
@@ -99,7 +99,7 @@ void DW3000::transmitFrame(shared_ptr<Frame> frame) {
     dwt_starttx(DWT_START_TX_IMMEDIATE);
 }
 
-CIRs& DW3000::extractCIR() {
+CIRs& DW3000::extractCIRs() {
     dwt_readaccdata(this->cirBuffer, CIR_BUFFER_SIZE, 0);
     for (int idx = 0; idx < CIR_SAMPLES; idx++) {
         int i = 1 + idx*CIR_BYTES_PER_SAMPLE;
