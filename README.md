@@ -44,15 +44,15 @@ void setup() {
 
     // Step 2. Basic configuration
     dwt_config_t config = {/* your configuration */};
-    if (dwt.configure(&config) != DWStatus::OK) {
+    if (uwb.configure(&config) != DWStatus::OK) {
         Serial.print("Configuration failed.");
         while (1);
     }
 
     // Step 3. Optional configurations
     uwb.enableLED();
-    dwt.setAntennaDelay(RX_ANT_DLY, TX_ANT_DLY);
-    dwt.setLNAPAMode(true, true); // Amplifying transmitted/received signals
+    uwb.setAntennaDelay(RX_ANT_DLY, TX_ANT_DLY);
+    uwb.setLNAPAMode(true, true); // Amplifying transmitted/received signals
 }
 ```
 
