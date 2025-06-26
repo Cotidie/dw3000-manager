@@ -25,7 +25,6 @@ public:
 private:
     CIR* cirs;
     uint16_t len;
-    +
 };
 
 /**
