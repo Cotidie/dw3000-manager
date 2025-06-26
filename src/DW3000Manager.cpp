@@ -20,6 +20,7 @@ extern dwt_txconfig_t txconfig_options;
 DW3000::DW3000() {
     this->cirBuffer = new uint8_t[CIR_BUFFER_SIZE];
     this->cirs = new CIRs(CIR_SAMPLES);
+    this->diagnostics = new Diagnostics();
 }
 
 DW3000::~DW3000() {
@@ -116,4 +117,13 @@ CIRs& DW3000::extractCIRs() {
     }
 
     return *cirs;
+}
+
+Diagnostics& DW3000::extractDiagnostics() {
+    dwt_readdiagnostics(&(diagnostics->diags));
+    return *diagnostics;
+}
+
+uint8_t DW3000::extractDGC() {
+    return dwt_read8bitoffsetreg(0x30060, 28) & 0x07;
 }

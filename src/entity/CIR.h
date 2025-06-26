@@ -19,7 +19,7 @@ public:
         this->imaginary = imaginary;
     }
 
-    // Conver to Json array [real, imaginary]
+    // JSON format: [real, imaginary]
     JsonDocument toJson() {
         JsonDocument arr;
         arr.add(real);

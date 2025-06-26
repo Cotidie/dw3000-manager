@@ -5,6 +5,7 @@
 #include "stdint.h"
 #include "dw3000.h"
 #include "entity/CIR.h"
+#include "entity/Diagnostics.h"
 #include "frame/Frame.h"
 #include "frame/FrameParser.h"
 #include "frame/FrameBuilder.h"
@@ -88,6 +89,11 @@ public:
      * @return CIRFrame containing a pointer to CIR data and the number of samples.
     */
     CIRs& extractCIRs();
+
+    Diagnostics& extractDiagnostics();
+
+    uint8_t extractDGC();
+
 private:
     DWStatus status = DWStatus::OK;
 
@@ -96,4 +102,5 @@ private:
     // Note that ESP32 only allocates 8KB to stack memory, while ~180KB to static, heap area.
     uint8_t *cirBuffer;
     CIRs* cirs;
+    Diagnostics* diagnostics;
 };
