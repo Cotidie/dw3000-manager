@@ -78,6 +78,31 @@ void DW3000::setLNAPAMode(bool lna, bool pa) {
     dwt_setlnapamode(bits);
 }
 
+void DW3000::setDiagnosticsLevel(DiagnosticsLevel level) {
+    this->diagLevel = level;
+
+    switch (level) {
+        case DiagnosticsLevel::ALL:
+            dwt_configciadiag(DW_CIA_DIAG_LOG_ALL);
+            return;
+        case DiagnosticsLevel::MAX:
+            dwt_configciadiag(DW_CIA_DIAG_LOG_MAX);
+            return;
+        case DiagnosticsLevel::MID:
+            dwt_configciadiag(DW_CIA_DIAG_LOG_MID);
+            return;
+        case DiagnosticsLevel::MIN:
+            dwt_configciadiag(DW_CIA_DIAG_LOG_MIN);
+            return;
+        case DiagnosticsLevel::OFF:
+            dwt_configciadiag(DW_CIA_DIAG_LOG_OFF);
+            return;
+        default:
+            return;
+    }
+
+}
+
 shared_ptr<Frame> DW3000::receiveFrame() {
     // Immediately enable RX
     dwt_rxenable(DWT_START_RX_IMMEDIATE);
@@ -100,9 +125,9 @@ void DW3000::transmitFrame(shared_ptr<Frame> frame) {
     dwt_starttx(DWT_START_TX_IMMEDIATE);
 }
 
-CIRs& DW3000::extractCIRs() {
+CIRs& DW3000::extractCIRs(int start, int end) {
     dwt_readaccdata(this->cirBuffer, CIR_BUFFER_SIZE, 0);
-    for (int idx = 0; idx < CIR_SAMPLES; idx++) {
+    for (int idx = start; idx < end; idx++) {
         int i = 1 + idx*CIR_BYTES_PER_SAMPLE;
 
         // Extract real part (24-bit signed)

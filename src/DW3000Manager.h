@@ -24,6 +24,14 @@ enum class DWStatus {
     CONFIG_FAILED   // Configuration failed
 };
 
+enum class DiagnosticsLevel {
+    MAX,            //CIA to copy to swinging set a maximum set of diagnostic registers in Double Buffer mode
+    MID,            //CIA to copy to swinging set a medium set of diagnostic registers in Double Buffer mode
+    MIN,            //CIA to copy to swinging set a minimal set of diagnostic registers in Double Buffer mode
+    ALL,            //CIA to log all diagnostic registers
+    OFF             //CIA to log reduced set of diagnostic registers
+};
+
 /**
  * @brief DW3000 interface class that wraps dw3000.h library. Responsible for TX, RX, and hardware control.
  */
@@ -75,6 +83,9 @@ public:
     */
     void setLNAPAMode(bool lna, bool pa);
 
+
+    void setDiagnosticsLevel(DiagnosticsLevel level);
+
     /** @brief A blocking call that waits for a UWB frame. */
     shared_ptr<Frame> receiveFrame();
 
@@ -88,7 +99,7 @@ public:
      * 
      * @return CIRFrame containing a pointer to CIR data and the number of samples.
     */
-    CIRs& extractCIRs();
+    CIRs& extractCIRs(int start, int end);
 
     Diagnostics& extractDiagnostics();
 
@@ -103,4 +114,5 @@ private:
     uint8_t *cirBuffer;
     CIRs* cirs;
     Diagnostics* diagnostics;
+    DiagnosticsLevel diagLevel;
 };
